@@ -1,4 +1,4 @@
-from fastapi import FastAPI, status
+from fastapi import FastAPI, HTTPException, status
 
 from app.schemas import Task, TaskCreate
 from app.storage import store
@@ -13,3 +13,11 @@ def create_task(payload: TaskCreate) -> Task:
 @app.get("/tasks", response_model=list[Task])
 def list_tasks() -> list[Task]:
     return store.list()
+
+
+@app.get("/tasks/{task_id}", response_model=Task)
+def get_task(task_id: int) -> Task:
+    task = store.get(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
