@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, status
 
-from app.schemas import Task, TaskCreate
+from app.schemas import Task, TaskCreate, TaskUpdate
 from app.storage import store
 
 app = FastAPI(title="Task Tracker API")
@@ -21,3 +21,16 @@ def get_task(task_id: int) -> Task:
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
+
+
+@app.patch("/tasks/{task_id}", response_model=Task)
+def update_task(task_id: int, payload: TaskUpdate) -> Task:
+    updated = store.update(
+        task_id,
+        title=payload.title,
+        description=payload.description,
+        status=payload.status,
+    )
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return updated
