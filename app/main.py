@@ -34,3 +34,10 @@ def update_task(task_id: int, payload: TaskUpdate) -> Task:
     if updated is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return updated
+
+
+@app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_task(task_id: int) -> None:
+    deleted = store.delete(task_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Task not found")
