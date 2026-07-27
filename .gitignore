@@ -7,3 +7,4 @@ venv/
 .coverage
 .ruff_cache
 *.log
+docs/PROJECT_REPORT.docx
