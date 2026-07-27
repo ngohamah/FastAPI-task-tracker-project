@@ -1,6 +1,8 @@
+from typing import Optional
+
 from fastapi import FastAPI, HTTPException, status
 
-from app.schemas import Task, TaskCreate, TaskUpdate
+from app.schemas import Task, TaskCreate, TaskStatus, TaskUpdate
 from app.storage import store
 
 app = FastAPI(title="Task Tracker API")
@@ -11,8 +13,8 @@ def create_task(payload: TaskCreate) -> Task:
 
 
 @app.get("/tasks", response_model=list[Task])
-def list_tasks() -> list[Task]:
-    return store.list()
+def list_tasks(status: Optional[TaskStatus] = None) -> list[Task]:
+    return store.list(status=status)
 
 
 @app.get("/tasks/{task_id}", response_model=Task)
