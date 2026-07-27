@@ -8,3 +8,8 @@ app = FastAPI(title="Task Tracker API")
 @app.post("/tasks", response_model=Task, status_code=status.HTTP_201_CREATED)
 def create_task(payload: TaskCreate) -> Task:
     return store.create(title=payload.title, description=payload.description)
+
+
+@app.get("/tasks", response_model=list[Task])
+def list_tasks() -> list[Task]:
+    return store.list()
