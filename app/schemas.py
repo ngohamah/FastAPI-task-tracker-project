@@ -10,12 +10,12 @@ class TaskStatus(str, Enum):
 
 
 class TaskCreate(BaseModel):
-    title: str = Field(min_length=1)
+    title: str = Field(min_length=1, max_length=200)
     description: str = ""
 
 
 class TaskUpdate(BaseModel):
-    title: Optional[str] = Field(default=None, min_length=1)
+    title: Optional[str] = Field(default=None, min_length=1, max_length=200)
     description: Optional[str] = None
     status: Optional[TaskStatus] = None
 

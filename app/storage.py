@@ -35,6 +35,3 @@ class TaskStore:
 
     def delete(self, task_id: int) -> bool:
         return self._tasks.pop(task_id, None) is not None
-
-
-store = TaskStore()

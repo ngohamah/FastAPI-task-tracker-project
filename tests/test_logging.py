@@ -2,7 +2,6 @@ import logging
 
 from fastapi.testclient import TestClient
 
-from app import storage
 from app.logging_config import _file_handler
 from app.main import app
 
@@ -28,11 +27,11 @@ def test_request_logging_emits_log_line(client, caplog):
     assert any("GET /health -> 200" in record.message for record in caplog.records)
 
 
-def test_unhandled_exception_is_logged_and_returns_500(caplog, monkeypatch):
+def test_unhandled_exception_is_logged_and_returns_500(caplog, monkeypatch, store):
     def boom(*args, **kwargs):
         raise RuntimeError("storage exploded")
 
-    monkeypatch.setattr(storage.store, "list", boom)
+    monkeypatch.setattr(store, "list", boom)
     no_raise_client = TestClient(app, raise_server_exceptions=False)
 
     with caplog.at_level(logging.ERROR, logger="task_tracker"):

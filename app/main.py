@@ -2,16 +2,21 @@ import time
 import uuid
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import JSONResponse, RedirectResponse
 from prometheus_client import Counter, Histogram, make_asgi_app
 
 from app.logging_config import logger, request_id_var
 from app.schemas import Task, TaskCreate, TaskStatus, TaskUpdate
-from app.storage import store
+from app.storage import TaskStore
 
 app = FastAPI(title="Task Tracker API")
 app.mount("/metrics", make_asgi_app())
+app.state.store = TaskStore()
+
+
+def get_store(request: Request) -> TaskStore:
+    return request.app.state.store
 
 REQUEST_COUNT = Counter(
     "http_requests_total",
@@ -61,17 +66,19 @@ def health() -> dict:
 
 
 @app.post("/tasks", response_model=Task, status_code=status.HTTP_201_CREATED)
-def create_task(payload: TaskCreate) -> Task:
+def create_task(payload: TaskCreate, store: TaskStore = Depends(get_store)) -> Task:
     return store.create(title=payload.title, description=payload.description)
 
 
 @app.get("/tasks", response_model=list[Task])
-def list_tasks(status: Optional[TaskStatus] = None) -> list[Task]:
+def list_tasks(
+    status: Optional[TaskStatus] = None, store: TaskStore = Depends(get_store)
+) -> list[Task]:
     return store.list(status=status)
 
 
 @app.get("/tasks/{task_id}", response_model=Task)
-def get_task(task_id: int) -> Task:
+def get_task(task_id: int, store: TaskStore = Depends(get_store)) -> Task:
     task = store.get(task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -79,7 +86,9 @@ def get_task(task_id: int) -> Task:
 
 
 @app.patch("/tasks/{task_id}", response_model=Task)
-def update_task(task_id: int, payload: TaskUpdate) -> Task:
+def update_task(
+    task_id: int, payload: TaskUpdate, store: TaskStore = Depends(get_store)
+) -> Task:
     updated = store.update(
         task_id,
         title=payload.title,
@@ -92,7 +101,7 @@ def update_task(task_id: int, payload: TaskUpdate) -> Task:
 
 
 @app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_task(task_id: int) -> None:
+def delete_task(task_id: int, store: TaskStore = Depends(get_store)) -> None:
     deleted = store.delete(task_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Task not found")
