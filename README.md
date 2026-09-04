@@ -1,5 +1,7 @@
 # Task Tracker API
 
+![CI](https://github.com/ngohamah/agile-practices-lab-project/actions/workflows/ci.yml/badge.svg)
+
 A lightweight Task Tracker API that lets a user create, update, and monitor
 the status of their tasks through a simple, well-tested REST interface.
 
@@ -38,3 +40,18 @@ pytest tests/ -v
 ```bash
 ruff check .
 ```
+
+## Run with Docker
+
+```bash
+docker build -t task-tracker-api .
+docker run -p 8000:8000 task-tracker-api
+```
+
+## Observability
+
+- Logs are structured JSON (see `app/logging_config.py`), written to both
+  stdout and `app.log`, and each line carries the `request_id` generated for
+  that request (also returned as the `X-Request-ID` response header).
+- Prometheus-format metrics (request count and latency per method/path) are
+  exposed at `GET /metrics`.
