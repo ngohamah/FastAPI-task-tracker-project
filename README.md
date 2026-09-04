@@ -1,6 +1,6 @@
 # Task Tracker API
 
-![CI](https://github.com/ngohamah/agile-practices-lab-project/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/ngohamah/FastAPI-task-tracker-project/actions/workflows/ci.yml/badge.svg)
 
 A lightweight Task Tracker API that lets a user create, update, and monitor
 the status of their tasks through a simple, well-tested REST interface.
